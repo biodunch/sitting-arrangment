@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include ./partials/head %>
+
+<body class="animsition">
+    <div class="page-wrapper">
+        <!-- HEADER MOBILE-->
+        <% include ./partials/nav_mobile %>
+        <!-- END HEADER MOBILE-->
+        <!-- MENU SIDEBAR-->
+        <% include ./partials/sidebar %>
+        <!-- END MENU SIDEBAR-->
+        <!-- PAGE CONTAINER-->
+        <div class="page-container">
+            <!-- HEADER DESKTOP-->
+            <% include ./partials/nav %>
+            <!-- HEADER DESKTOP-->
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div class="row">
+                        </div>
+                        <div class="container">
+                        
+                            <div class="col-lg-12">
+                                    <h2 class="title-1 m-b-25">Schedule Exam</h2>
+                                    <form action="" id="scheduleExamForm">
+                                        <div class="form-group">
+                                            <label for="course">Course</label>
+                                            <select name="course" id="course" class="form-control">
+                                                <option value="">Select Course</option>
+                                                <% courses.forEach(function(course){ %>
+                                                    <option value="<%= course._id %>"><%= course.code %></option>
+                                                <% }) %>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="hall">Hall</label>
+                                            <select name="hall" id="hall" class="form-control">
+                                                    <option value="">Select Exam Hall</option>
+                                                    <% halls.forEach(function(hall){ %>
+                                                        <option value="<%= hall._id %>"><%= hall.name %></option>
+                                                    <% }) %>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="hall">Invigilator</label>
+                                            <input type="text" name="invigilator" id="invigilator" placeholder="Invigilator" class="form-control">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="hall">Exam Date</label>
+                                            <input type="date" name="date" id="date" class="form-control">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Schedule Exam</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <% include ./partials/footer %>
+                    </div>
+                </div>
+            </div>
+            <!-- END MAIN CONTENT-->
+            <!-- END PAGE CONTAINER-->
+        </div>
+
+    </div>
+
+    <% include ./partials/script %>
+    <script>
+        $('#course').select2({
+            placeholder: "Select Course",
+            width: "100%"
+        })
+
+        $('#hall').select2({
+            placeholder: "Select Hall",
+            width: "100%"
+        })
+
+        $('#scheduleExamForm').submit(function(e){
+            e.preventDefault();
+            const hall = {
+                "course": $('#course').val(),
+                "hall": $('#hall').val(),
+                "invigilator": $('#invigilator').val(),
+                "date": $('#date').val()
+            };
+            // console.log(hall);
+            $.post(`/admin/schedule_exam`,hall,function(data){
+                if(data['status'] == 1){
+                    $('.alert').removeClass('alert-danger').text('');
+                    swal("Great!",data['message'],'success').then(()=>{
+                        location.reload(true);
+                    });
+                }else{
+                    $('.alert').addClass('alert-danger').text(data['message']);
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>
+<!-- end document-->

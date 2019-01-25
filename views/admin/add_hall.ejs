@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include ./partials/head %>
+
+<body class="animsition">
+    <div class="page-wrapper">
+        <!-- HEADER MOBILE-->
+        <% include ./partials/nav_mobile %>
+        <!-- END HEADER MOBILE-->
+        <!-- MENU SIDEBAR-->
+        <% include ./partials/sidebar %>
+        <!-- END MENU SIDEBAR-->
+        <!-- PAGE CONTAINER-->
+        <div class="page-container">
+            <!-- HEADER DESKTOP-->
+            <% include ./partials/nav %>
+            <!-- HEADER DESKTOP-->
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div class="row">
+                        </div>
+                        <div class="container">
+                        
+                            <div class="col-lg-12">
+                            
+                                    <h2 class="title-1 m-b-25">Add Exam Hall</h2>
+                                    <div class="alert"></div>
+                                    <form action="" id="addHallForm">
+                                        <div class="form-group">
+                                            <label for="name">Name</label>
+                                            <input type="text" name="name" id="name" placeholder="Hall Name" class="form-control">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="rows">Number Of Rows</label>
+                                            <input type="number" min="0" name="rows" id="rows" placeholder="Number of Rows" class="form-control">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="cols">Number Of Colums</label>
+                                            <input type="number" min="0" name="cols" id="cols" placeholder="Number of Columns" class="form-control">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="cols">Number Of Seats Per Column</label>
+                                            <input type="number" min="0" name="seats_per_col" id="seats_per_col" placeholder="Number of Seats Per Column" class="form-control">
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary">Add Exam Hall</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <% include ./partials/footer %>
+                    </div>
+                </div>
+            </div>
+            <!-- END MAIN CONTENT-->
+            <!-- END PAGE CONTAINER-->
+        </div>
+
+    </div>
+
+    <% include ./partials/script %>
+    <script>
+        $('#course').select2({
+            placeholder: "Select Course(s)",
+            width: "100%"
+        })
+
+        $('#student').select2({
+            placeholder: "Select Student(s)",
+            width: "100%"
+        })
+
+        $('#addHallForm').submit(function(e){
+            e.preventDefault();
+            const hall = {
+                "name": $('#name').val(),
+                "rows": $('#rows').val(),
+                "cols": $('#cols').val(),
+                "seats_per_col": $('#seats_per_col').val()
+            };
+            // console.log(hall);
+            $.post(`/admin/add_hall`,hall,function(data){
+                if(data['status'] == 1){
+                    $('.alert').removeClass('alert-danger').text('');
+                    swal("Great!",data['message'],'success').then(()=>{
+                        location.reload(true);
+                    })
+                }else{
+                    $('.alert').addClass('alert-danger').text(data['message']);
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>
+<!-- end document-->
