@@ -42,12 +42,13 @@ router.get('/exam_halls',controller.get_halls);
 
 router.get('/scheduled_exams',controller.get_exams);
 
+router.get('/arrangement/:exam',controller.generate_sitting_arrangment);
+
+router.get('/logout',controller.logout);
+
 // router.get('/exams',controller.get_exams);
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  console.log(req.session);
-  res.render('admin/index',{title: 'Dashboard'});
-});
+router.get('/',controller.getIndex);
 
 module.exports = router;

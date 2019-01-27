@@ -34,6 +34,7 @@
                                                         <th>Venue</th>
                                                         <th>Invigilator</th>
                                                         <th>Date</th>
+                                                        <th>Action</th>
                                                     </thead>
                                                     <tbody>
                                                         <% exams.forEach(function(exam){ %>
@@ -49,6 +50,9 @@
                                                                 </td>
                                                                 <td>
                                                                     <%= exam.date %>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="/admin/arrangement/<%= exam._id %>" class="btn btn-secondary">Generate Arrangement</a>
                                                                 </td>
                                                             </tr>
                                                         <% }) %>

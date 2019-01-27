@@ -3,6 +3,19 @@ const validateData = require('../helpers/validateData');
 const bcrypt = require('bcrypt-nodejs');
 
 
+const getIndex = async (req,res) => {
+    try {
+        const students = await Student.count();
+        const courses = await Course.count();
+        const halls = await Hall.count();
+        const admin = req.session.admin;
+        res.render('admin/index',{title: 'Dashboard', students, courses, halls,admin});
+    } catch (error) {
+        console.log(error)
+        res.redirect('/');
+    }
+}
+
 const get_login = (req,res)=>{
     res.render('admin/login',{title:"Login"});
 }
@@ -13,9 +26,10 @@ const get_signup = (req,res)=>{
 
 const get_courses = async(req,res) => {
     try {
+        const admin = req.session.admin;
         const courses = await Course.find({},{});
-        res.render('admin/courses',{title: "Add Course", courses});
-    } catch (error) {
+        res.render('admin/courses',{title: "Add Course", courses,admin});
+    } catch (error) { 
         res.send('Suhfjh');
     }
 }
@@ -23,7 +37,8 @@ const get_courses = async(req,res) => {
 const get_students = async(req,res) =>{
     try {
         const student = await Student.find({},{});
-        res.render('admin/view_students',{title:"View Students", students});
+        const admin = req.session.admin;
+        res.render('admin/view_students',{title:"View Students", students,admin});
     } catch (error) {
         res.redirect('/admin');
     }
@@ -32,22 +47,24 @@ const get_students = async(req,res) =>{
 const get_enroll_student = async(req,res)=>{
     try {
         const students = await Student.find({},{});
-
+        const admin = req.session.admin;
         const courses = await Course.find({},{});
-        res.render('admin/enroll_student',{title: "Enroll Student",students,courses});
+        res.render('admin/enroll_student',{title: "Enroll Student",students,courses,admin});
     } catch (error) {
         res.redirect('/admin');
     }
 }
 
 const get_add_hall = async(req,res)=>{
-    res.render('admin/add_hall',{title: "Add Exam Hall"});
+    const admin = req.session.admin;
+    res.render('admin/add_hall',{title: "Add Exam Hall",admin});
 }
 
 const get_halls = async(req,res) => {
     try {
+        const admin = req.session.admin;
         const halls = await Hall.find();
-        res.render('admin/halls',{title:"Exam Halls", halls});
+        res.render('admin/halls',{title:"Exam Halls", halls,admin});
     } catch (error) {
         console.log(error)
     }
@@ -55,9 +72,10 @@ const get_halls = async(req,res) => {
 
 const get_exams = async(req,res) => {
     try {
+        const admin = req.session.admin;
         const exams = await Exam.find().populate(['hall','course']);
         console.log(exams)
-        res.render('admin/exams',{title:"Scheduled Exams", exams});
+        res.render('admin/exams',{title:"Scheduled Exams", exams,admin});
     } catch (error) {
         console.log(error)
     }
@@ -67,7 +85,8 @@ const get_schedule_exam = async(req,res)=>{
     try {
         const courses = await Course.find({},{});
         const halls = await Hall.find({},{});
-        res.render('admin/schedule_exam',{title: "Schedule Exam",courses,halls});
+        const admin = req.session.admin;
+        res.render('admin/schedule_exam',{title: "Schedule Exam",courses,halls,admin});
     } catch (error) {
         res.redirect('/admin');
     }
@@ -76,7 +95,8 @@ const get_schedule_exam = async(req,res)=>{
 const get_add_result = async(req,res)=>{
     try {
         const students = await Student.find({},{});
-        res.render('admin/add_result',{title: "Add Student Result"});
+        const admin = req.session.admin;
+        res.render('admin/add_result',{title: "Add Student Result",admin});
     } catch (error) {
         res.redirect('/admin');
     }
@@ -86,6 +106,7 @@ const get_student_courses = async(req,res)=>{
     try {
         const {student_id } = req.params;
         const student = Student.findById(student_id);
+        const admin = req.session.admin;
         if(student){
             const courses = student.courses;
             res.json({status:1,message:courses});
@@ -158,8 +179,9 @@ const add_course = async(req,res)=>{
 const view_students = async(req,res)=> {
     try {
         const students = await Student.find({},{});
+        const admin = req.session.admin;
         if(students){
-            res.render('admin/view_students',{title:"View Students",students});
+            res.render('admin/view_students',{title:"View Students",students,admin});
         }
     } catch (error) {
         let backURL=req.header('Referer') || '/';
@@ -171,7 +193,7 @@ const enroll_student = async(req,res)=> {
     
     const {student_id, courses} = req.body;
     // console.log(stud);
-    if(!validateData(student_id)){
+    if(!validateData(student_id, courses)){
         res.json({status:0,message:"Please fill all fields!"});
     }else{
         try {
@@ -179,11 +201,12 @@ const enroll_student = async(req,res)=> {
             const student = await Student.findOne({_id:student_id});
             if(student){
                 courses.forEach(course => {
-                    if(!courses.includes(course)){
+                    console.log(courses.indexOf(course))
+                    if(courses.indexOf(course) == 1){
                         student.courses.push(course);
                     }
-                    
                 });
+                console.log(student);
                 await student.save();
                 res.json({status:1,message: "Student Enrolled Successfully"});
             }else{
@@ -252,29 +275,75 @@ const add_hall = async(req,res)=>{
 
 const generate_sitting_arrangment = async(req,res) => {
     try {
-        const { exam_id } = req.params.exam;
+        // console.log('ggg')
+        const { exam } = req.params;
+        // console.log(req);
         // get exam details
-        const exam = await Exam.findById(exam_id);
-        if(exam){
+        const exam_detail = await Exam.findById(exam);
+        const admin = req.session.admin;
+        if(exam_detail){
+            let students_matric = [];
             // get level of students writing the exam from the course details
-            const course = await Course.findById(exam.course);
-            if(course){
-                const student_level = course.level;
-                // fetch students in the level
-                const students = Student.find({level: student_level}).select('matric');
-
-            }
+            const course = await Course.findById(exam_detail.course);
+            const hall = await Hall.findById(exam_detail.hall);
+            const students = await Student.find().select(['courses','matric']);
+            students.forEach((student) => {
+                if(student.courses.indexOf(exam_detail.course) == 0){
+                    students_matric.push(student.matric)
+                }
+            })
+            // shuffle array
+            students_matric = shuffle(students_matric);
+            res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, admin,seats:hall.seats_per_col});
         }else{
-
+            console.log('not available')
         }
         
     } catch (error) {
-        
+        console.log(error);
     }
-    
+}
+
+// Fisher-Yates (aka Knuth) Shuffle
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  }
+
+/**
+ * Randomize array element order in-place.
+ * Using Durstenfeld shuffle algorithm.
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+const logout = (req,res) => {
+    req.session.destroy();
+    res.redirect('/admin/login');
 }
 
 module.exports = {
+    getIndex,
     get_login,
     get_signup,
     get_courses,
@@ -292,5 +361,7 @@ module.exports = {
     schedule_exam,
     add_hall,
     get_halls,
-    get_exams
+    get_exams,
+    generate_sitting_arrangment,
+    logout
 }
