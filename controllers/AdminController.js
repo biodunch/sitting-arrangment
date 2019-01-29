@@ -287,8 +287,11 @@ const generate_sitting_arrangment = async(req,res) => {
             const course = await Course.findById(exam_detail.course);
             const hall = await Hall.findById(exam_detail.hall);
             const students = await Student.find().select(['courses','matric']);
+            console.log(students)
             students.forEach((student) => {
-                if(student.courses.indexOf(exam_detail.course) == 0){
+                console.log('students ',student.courses.indexOf(exam_detail.course))
+                console.log('Course', exam_detail.course);
+                if(student.courses.indexOf(exam_detail.course) != -1){
                     students_matric.push(student.matric)
                 }
             })
@@ -296,7 +299,7 @@ const generate_sitting_arrangment = async(req,res) => {
             students_matric = shuffle(students_matric);
             res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, admin,seats:hall.seats_per_col});
         }else{
-            console.log('not available')
+            console.log('not available');
         }
         
     } catch (error) {

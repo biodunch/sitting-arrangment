@@ -36,17 +36,18 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <% for(let i=0;i<= students.length ;i++){ %>
-                                                    <tr>
-                                                        <!-- <td> <%= i+1 %> </td> -->
-                                                        <td>
-                                                                <%= students[i] %>
-                                                        </td>
-                                                        <% if(i+1 == seats){ %>
-                                                            </tr>
-                                                            <tr>
-                                                      <%  } %>
-                                                <% } %>                                                
+                                                  <%
+                                                  let rows = students.length/seats
+                                                  for(let i =0; i < rows; i++ ){ %>
+                                                      <tr>
+                                                          <% for(let j=i; j< seats+i; j++){ %>
+                                                            <td>
+                                                                <%= students[j] %>
+                                                            </td>
+                                                        <%  } %>
+                                                      </tr>
+                                                 <% }
+                                                  %>
                                             </tbody>
                                         </table>
                                     </div>
