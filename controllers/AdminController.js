@@ -297,7 +297,7 @@ const generate_sitting_arrangment = async(req,res) => {
             })
             // shuffle array
             students_matric = shuffle(students_matric);
-            res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, admin,seats:hall.seats_per_col});
+            res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, course ,admin,seats:hall.seats_per_col});
         }else{
             console.log('not available');
         }

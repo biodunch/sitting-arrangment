@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const local_url = "mongodb://localhost/sitting";
+// console.log(process.env.NODE_ENV);
+const url = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ds117145.mlab.com:17145/sitting`;
 
-mongoose.connect(local_url).then(()=>{
+mongoose.connect(url).then(()=>{
     console.log('Connected to database',{ useNewUrlParser: true });
 }).catch((err)=>{
     console.log(err);
