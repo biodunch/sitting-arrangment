@@ -3,6 +3,7 @@ var router = express.Router();
 const controller = require('../controllers/StudentController');
 const ensureLoggedIn  = require('../middlewares/ensureLoggedIn').student;
 
+
 router.get('/login',controller.get_login);
 
 router.get('/signup',controller.get_signup);
@@ -16,8 +17,10 @@ router.use(ensureLoggedIn);
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   console.log(req.session);
-  res.render('student/index',{title: 'Dashboard'});
+  const current_student = req.session.student;
+  res.render('student/index',{title: 'Dashboard', current_student});
 }); 
+
 
 router.get('/courses',controller.get_courses);
 
@@ -27,9 +30,11 @@ router.get('/result',controller.get_view_result);
 
 // router.get('/write_exam',controller.wri)
 
+// router.get('/get_exams',controller.get_exams);
+
 router.get('/exams',controller.get_scheduled_exams);
 
-router.get('/write_exam',controller.get_scheduled_exams);
+router.get('/write_exam',controller.get_exams);
 
 
 

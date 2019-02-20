@@ -95,8 +95,9 @@ const get_schedule_exam = async(req,res)=>{
 const get_add_result = async(req,res)=>{
     try {
         const students = await Student.find({},{});
+        const courses = await Course.find({},{});
         const admin = req.session.admin;
-        res.render('admin/add_result',{title: "Add Student Result",admin});
+        res.render('admin/add_result',{title: "Add Student Result",admin,students,courses});
     } catch (error) {
         res.redirect('/admin');
     }

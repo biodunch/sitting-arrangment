@@ -75,6 +75,10 @@
                                                     <label for="matric">Matric</label>
                                                     <input type="number" name="matric" id="matric" class="form-control" value="<%= student.matric %>">
                                                 </div>
+                                                <p>
+                                                        <img id="barcode"/>
+                                                </p>
+                                                
 
                                                 <button type="submit" class="btn btn-primary">Update Profile</button>
                                             </form>
@@ -94,7 +98,12 @@
     </div>
 
     <% include ./partials/script %>
-
+    <script>
+        let matric = $('#matric').val();
+        let barcode = JsBarcode("#barcode", matric);
+        // or with jQuery
+        // $("#barcode").JsBarcode(matric);
+    </script>
 </body>
 
 </html>
