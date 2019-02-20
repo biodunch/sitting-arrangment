@@ -36,6 +36,11 @@ router.get('/exams',controller.get_scheduled_exams);
 
 router.get('/write_exam',controller.get_exams);
 
+router.get('/logout', (req,res) => {
+  req.session.student = null;
+  res.redirect('/student/login');
+})
+
 
 
 
