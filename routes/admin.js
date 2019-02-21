@@ -40,6 +40,8 @@ router.post('/add_result',controller.add_result);
 
 router.get('/exam_halls',controller.get_halls);
 
+router.get('/students/:course_id',controller.get_course_students);
+
 router.get('/scheduled_exams',controller.get_exams);
 
 router.get('/arrangement/:exam',controller.generate_sitting_arrangment);

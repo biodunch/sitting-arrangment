@@ -80,8 +80,8 @@
 
             $.post('/admin/enroll_student',data,function(res){
                 console.log(res);
-                if(data['status']){
-                    swal("Great",data['message'], 'success').then(function(){
+                if(res['status']){
+                    swal("Great","Student Enrolled Successfully", 'success').then(function(){
                         location.reload();
                     })
                 }else{

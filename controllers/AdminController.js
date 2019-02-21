@@ -9,7 +9,8 @@ const getIndex = async (req,res) => {
         const courses = await Course.count();
         const halls = await Hall.count();
         const admin = req.session.admin;
-        res.render('admin/index',{title: 'Dashboard', students, courses, halls,admin});
+        const exams = await Exam.find().populate(['hall','course']);
+        res.render('admin/index',{title: 'Dashboard', students, courses, halls,admin,exams});
     } catch (error) {
         console.log(error)
         res.redirect('/');
@@ -68,6 +69,19 @@ const get_halls = async(req,res) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+const get_course_students = async(req,res) => {
+    try {
+        const { course_id } = req.params;
+        const course = await Course.findById(course_id);
+        const admin = req.session.admin;
+        const students = await Student.find({course: course_id});
+        res.render('admin/course_students',{students, title:"Enrolled Students",admin, course});
+    } catch (error) {
+        
+    }
+
 }
 
 const get_exams = async(req,res) => {
@@ -367,5 +381,6 @@ module.exports = {
     get_halls,
     get_exams,
     generate_sitting_arrangment,
+    get_course_students,
     logout
 }

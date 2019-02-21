@@ -59,6 +59,7 @@
                                                         <th>Title</th>
                                                         <th>Code</th>
                                                         <th>level</th>
+                                                        <td>Enrolled Students</td>
                                                     </thead>
                                                     <tbody>
                                                         <% courses.forEach(function(course){ %>
@@ -71,6 +72,9 @@
                                                                 </td>
                                                                 <td>
                                                                     <%= course.level %>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="/admin/students/<%= course._id %>" class="btn btn-primary">View Students</a>
                                                                 </td>
                                                             </tr>
                                                         <% }) %>

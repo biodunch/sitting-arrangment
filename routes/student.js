@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const controller = require('../controllers/StudentController');
 const ensureLoggedIn  = require('../middlewares/ensureLoggedIn').student;
+const { Exam } = require('../models/index');
 
 
 router.get('/login',controller.get_login);
@@ -15,10 +16,11 @@ router.post('/signup',controller.create_student);
 router.use(ensureLoggedIn);
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
   console.log(req.session);
   const current_student = req.session.student;
-  res.render('student/index',{title: 'Dashboard', current_student});
+  const exams = await Exam.find().populate(['hall','course']);
+  res.render('student/index',{title: 'Dashboard', current_student,exams});
 }); 
 
 
