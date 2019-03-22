@@ -15,7 +15,8 @@ const Admin = mongoose.model('admin',AdminSchema);
 const CourseSchema = new Schema({
     title: { type: String, required: true},
     code: {type: String, required: true, unique:true},
-    level: { type:String, enum:['100','200','300','400'], required:true}
+    level: { type:String, enum:['100','200','300','400'], required:true},
+    students: {type: Number, default:0}
 });
 const Course = mongoose.model('Course',CourseSchema);
 
@@ -55,11 +56,18 @@ const ResultSchema = new Schema({
 });
 const Result = mongoose.model('Result',ResultSchema);
 
+const SittingArrangementSchema = new Schema({
+    exam: { type: Schema.Types.ObjectId, ref:'Exam', required:true },
+    arrangement: {type: Array, required: true }
+}, { timestamps: true });
+const SittingArrangement = mongoose.model('SittingArrangement',SittingArrangementSchema);
+
 module.exports = {
     Admin,
     Course,
     Student,
     Hall,
     Exam,
-    Result
+    Result,
+    SittingArrangement
 };

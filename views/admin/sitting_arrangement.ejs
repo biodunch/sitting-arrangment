@@ -24,41 +24,42 @@
                         </div>
                         <div class="container">
                             <div class="col-lg-12">
-                                    <h2 class="title-1 m-b-25">Sitting Arrangement For  <%= course.code %> Examination</h2>
+                                    <h2 class="title-1 m-b-25" id="topic">Sitting Arrangement For  <%= course.code %> Examination</h2>
                                     <p><%= students.length %> Student(s) Enrolled For This Course</p>
-                                    <div class="table-responsive table--no-card m-b-40">
+                                    <div class="table-responsive table--no-card m-b-40" id="tab">
                                         <table class="table table-borderless table-striped table-earning">
                                             <thead>
                                                 <tr>
-                                                    <!-- <th>S/N</th> -->
-                                                   <% for(let i=1;i<= seats;i++){ %>
-                                                        <th>Seat <%= i %> </th> 
-                                                   <% } %>
+                                                    <td>Seat Number</td>
+                                                    <td>Matric Number</td>
+                                                    <td>Full Name</td>
                                                 </tr>
+
                                             </thead>
                                             <tbody>
-                                                  <%
-                                                  let rows = students.length/seats
-                                                  for(let i =0; i < rows; i++ ){ %>
+
+                                                  <% students.forEach( (student) => { %>
                                                       <tr>
-                                                          <% for(let j=i; j< seats+i; j++){ %>
-                                                            <td>
-                                                                <%= students[j] %>
-                                                            </td>
-                                                        <%  } %>
+                                                          <td><%=student.seatNumber%></td>
+                                                          <td><%=student.matricNumber%></td>
+                                                          <td><%=student.name%></td>
                                                       </tr>
-                                                 <% }
-                                                  %>
+                                                  <% }); %>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
+                            <p>
+                                <input type="button" value="Print Exam Arrangement"
+                                       id="btPrint" onclick="createPDF()" />
+                            </p>
                         </div>
                         </div>
                         <% include ./partials/footer %>
                     </div>
                 </div>
             </div>
+
             <!-- END MAIN CONTENT-->
             <!-- END PAGE CONTAINER-->
         </div>
@@ -66,7 +67,33 @@
     </div>
 
     <% include ./partials/script %>
+    <script>
+        function createPDF() {
+            var sTable = document.getElementById('tab').innerHTML;
 
+            var style = "<style>";
+            style = style + "table {width: 100%;font: 17px Calibri;}";
+            style = style + "table, th, td {border: solid 1px #DDD; border-collapse: collapse;";
+            style = style + "padding: 2px 3px;text-align: center;}";
+            style = style + "</style>";
+
+            // CREATE A WINDOW OBJECT.
+            var win = window.open('', '', 'height=700,width=700');
+
+            win.document.write('<html><head>');
+            let topic= $('#topic').text();
+            win.document.write(`<title>${topic}</title>`);   // <title> FOR PDF HEADER.
+            win.document.write(style);          // ADD STYLE INSIDE THE HEAD TAG.
+            win.document.write('</head>');
+            win.document.write('<body>');
+            win.document.write(sTable);         // THE TABLE CONTENTS INSIDE THE BODY TAG.
+            win.document.write('</body></html>');
+
+            win.document.close(); 	// CLOSE THE CURRENT WINDOW.
+
+            win.print();    // PRINT THE CONTENTS.
+        }
+    </script>
 </body>
 
 </html>

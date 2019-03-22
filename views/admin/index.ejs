@@ -110,7 +110,7 @@
                                                             <%= exam.invigilator %>
                                                         </td>
                                                         <td>
-                                                            <%= exam.date %>
+                                                            <%= moment(exam.date).format('LLL'); %>
                                                         </td>
                                                        
                                                     </tr>
