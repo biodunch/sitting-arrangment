@@ -130,9 +130,9 @@ const course_details = async(req,res)=>{
 // write exam
 const write_exam = async(req,res)=>{
     // get exam seat number and genarate barcode
-    const { exam_id } = req.params;
+    const student = req.session.student;
     try {
-        const exam = await Exam.findById(exam_id);
+        res.render('student/write_exam',{title: "Wtite Exam",current_student:student})
     } catch (error) {
         
     }
@@ -182,6 +182,7 @@ module.exports = {
     get_edit_profile,
     course_details,
     get_scheduled_exams,
-    get_exams
+    get_exams,
+    write_exam
 }
 

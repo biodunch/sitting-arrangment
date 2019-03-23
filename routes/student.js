@@ -36,7 +36,7 @@ router.get('/result',controller.get_view_result);
 
 router.get('/exams',controller.get_scheduled_exams);
 
-router.get('/write_exam',controller.get_exams);
+router.get('/write_exam',controller.write_exam);
 
 router.get('/logout', (req,res) => {
   req.session.student = null;
