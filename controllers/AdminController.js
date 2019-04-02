@@ -1,6 +1,5 @@
-const { Admin, Course, Student, Result, Exam, Hall } = require('../models');
+const { Admin, Course, Student, Result, Exam, Hall, SittingArrangement } = require('../models');
 const validateData = require('../helpers/validateData');
-const bcrypt = require('bcrypt-nodejs');
 
 
 const getIndex = async (req,res) => {
@@ -74,9 +73,19 @@ const get_halls = async(req,res) => {
 const get_course_students = async(req,res) => {
     try {
         const { course_id } = req.params;
+        let students = await Student.find();
+
+        students = students.filter((student) => {
+            let check = false;
+                student.courses.forEach((course) => {
+                    if(course == course_id){
+                        check = true;
+                    }
+                });
+            return check;
+        });
         const course = await Course.findById(course_id);
         const admin = req.session.admin;
-        const students = await Student.find({course: course_id});
         res.render('admin/course_students',{students, title:"Enrolled Students",admin, course});
     } catch (error) {
         
@@ -215,10 +224,13 @@ const enroll_student = async(req,res)=> {
             // find students
             const student = await Student.findOne({_id:student_id});
             if(student){
-                courses.forEach(course => {
+                courses.forEach(async course => {
                     console.log(courses.indexOf(course))
                     if(courses.indexOf(course) == 1){
                         student.courses.push(course);
+                        const course_d = await Course.findById(course);
+                        course_d.students++;
+                        await course_d.save();
                     }
                 });
                 console.log(student);
@@ -252,6 +264,7 @@ const add_result = async(req,res)=>{
 }
 
 const schedule_exam = async(req,res)=>{
+    console.log(req.body);
     const { course, hall, invigilator, date} = req.body;
     if(!validateData(course, hall, invigilator, date)){
         res.json({status:0,message:"Please fill all fields!"});
@@ -286,41 +299,68 @@ const add_hall = async(req,res)=>{
             res.json({status:0,message:error});
         }
     }
-}
-
+};
 const generate_sitting_arrangment = async(req,res) => {
     try {
         // console.log('ggg')
         const { exam } = req.params;
         // console.log(req);
-        // get exam details
-        const exam_detail = await Exam.findById(exam);
+        // check if arrangement exists before
+        const arrangement = await SittingArrangement.findOne({exam});
+        const exam_detail = await Exam.findById(exam).populate('hall');
+        const course = await Course.findById(exam_detail.course);
+
         const admin = req.session.admin;
-        if(exam_detail){
-            let students_matric = [];
-            // get level of students writing the exam from the course details
-            const course = await Course.findById(exam_detail.course);
-            const hall = await Hall.findById(exam_detail.hall);
-            const students = await Student.find().select(['courses','matric']);
-            console.log(students)
-            students.forEach((student) => {
-                console.log('students ',student.courses.indexOf(exam_detail.course))
-                console.log('Course', exam_detail.course);
-                if(student.courses.indexOf(exam_detail.course) != -1){
-                    students_matric.push(student.matric)
-                }
-            })
-            // shuffle array
-            students_matric = shuffle(students_matric);
-            res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, course ,admin,seats:hall.seats_per_col});
+        if(!arrangement){
+            // get exam details
+
+            const hall = exam_detail.hall;
+            let exam_size = parseInt(hall['rows'] * hall['cols']* hall['seats_per_col']);
+            if(exam_detail){
+                let students_matric = [];
+                // get level of students writing the exam from the course details
+
+                const students = await Student.find().select(['courses','matric','firstname','lastname']);
+                let enrolled = course.students;
+                const ratio = (enrolled/exam_size);
+                exam_size = exam_size *ratio;
+                let seats = [];
+                let seatArr = Array(exam_size).fill(0).map((e,i) => i+1);
+                console.log(seatArr);
+                students.forEach((student) => {
+                    if(student.courses.indexOf(exam_detail.course) !== -1){
+                        let index = Math.floor(Math.random() * seatArr.length);
+                        console.log(index);
+                        let seatNumber = seatArr[index];
+                        students_matric.push({
+                            "seatNumber" : seatNumber,
+                            "matricNumber" : student.matric,
+                            "name" : `${student.firstname} ${student.lastname}`
+                        });
+                        seatArr.splice(index,1);
+                        console.log('seat array ', seatArr);
+                    }
+                });
+                const newArrangement = new SittingArrangement({
+                    exam,
+                    arrangement: students_matric
+                });
+                await newArrangement.save();
+                // shuffle array
+                // students_matric = shuffle(students_matric);
+                res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: students_matric, course ,admin,seats:hall.seats_per_col});
+            }else{
+                console.log('not available');
+            }
         }else{
-            console.log('not available');
+            res.render('admin/sitting_arrangement',{title:"Sitting Arrangement",students: arrangement.arrangement, course ,admin});
         }
+
         
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 // Fisher-Yates (aka Knuth) Shuffle
 function shuffle(array) {
